@@ -27,9 +27,10 @@ namespace AutoCGAligner
         private readonly Dictionary<string, string> baseFullPath;
         private readonly Dictionary<string, Dictionary<string, string>> diffFullPath;
         private readonly Dictionary<string, ArrayList> baseToDiff;
-        private Bitmap baseImg;
-        private Bitmap diffImg;
-        private Image resultImg;
+        private Bitmap baseImage;
+        private Bitmap diffImage;
+        private Color[,] baseColors;
+        private Bitmap resultImage;
 
         private void ClearLabel_CheckedChanged(object sender, EventArgs e)
         {
@@ -39,9 +40,17 @@ namespace AutoCGAligner
 
         private void AlignAdvanced_Click(object sender, EventArgs e)
         {
-            AdvancedWin aw = new AdvancedWin();
-            aw.initStepValue.Maximum = 50;
-            aw.stepDivisorValue.Maximum = 30;
+            AdvancedWin aw = new AdvancedWin((initStep, stepDivisor, extScale) =>
+            {
+                this.initStep = initStep;
+                this.stepDivisor = stepDivisor;
+                this.extScale = extScale;
+                if (speedMode.Checked)
+                    speedMode.Checked = false;
+                else if (precisionMode.Checked)
+                    precisionMode.Checked = false;
+            });
+            aw.SetMaximum(50, 30);
             aw.SetValue(initStep, stepDivisor, extScale);
             aw.ShowDialog(this);
         }
@@ -117,7 +126,8 @@ namespace AutoCGAligner
                     string baseName = Path.GetFileName(bpath);
                     try
                     {
-                        baseImg = (Bitmap)Image.FromFile(bpath);
+                        baseImage = new Bitmap(bpath);
+                        baseColors = Program.BitmapToColors(baseImage);
                     }
                     catch
                     {
@@ -144,7 +154,7 @@ namespace AutoCGAligner
                         string diffName = Path.GetFileName(dpath);
                         try
                         {
-                            diffImg = (Bitmap)Image.FromFile(dpath);
+                            diffImage = new Bitmap(dpath);
                         }
                         catch
                         {
@@ -161,21 +171,23 @@ namespace AutoCGAligner
 
                         if (clearLabel.Checked)
                         {
-                            Dictionary<Color, int> colorList = Program.CountColors(diffImg);
-                            Color bgColor = colorList.Aggregate((a, b) => a.Value > b.Value ? a : b).Key;
-                            Program.ClearBackground(ref diffImg, bgColor, (int)degreeValue.Value);
+                            Dictionary<Color, int> numOfColor = Program.CountColors(diffImage);
+                            Color bgColor = numOfColor.Aggregate((a, b) => a.Value > b.Value ? a : b).Key;
+                            double ratio = (double)degreeValue.Value / (double)degreeValue.Maximum;
+                            Program.ClearColor(ref diffImage, bgColor,
+                                (int)(ratio * ratio * Program.MaxPixelDis));
                         }
 
-                        Color[,] border = Program.GetBorder(diffImg, out int npixels);
-                        if (!Program.AlignImage(baseImg, border,
-                            out int x, out int y, out double dis,
+                        Color[,] border = Program.GetBorder(diffImage, out int npixels);
+                        if (!Program.AlignImage(baseColors, border,
+                            out int x, out int y, out long dis,
                             initStep, stepDivisor, extScale,
                             baw.alignBar, baw.cts, this, null))
                             return;
-                        resultImg = (Image)baseImg.Clone();
-                        Graphics g = Graphics.FromImage(resultImg);
-                        g.DrawImage(diffImg, x, y);
-                        resultImg.Save(Path.Combine(savePath.Text,
+                        resultImage = new Bitmap(baseImage);
+                        Graphics g = Graphics.FromImage(resultImage);
+                        g.DrawImage(diffImage, x, y);
+                        resultImage.Save(Path.Combine(savePath.Text,
                             Path.GetFileNameWithoutExtension(baseName) + "+" +
                             Path.GetFileNameWithoutExtension(diffName) + ".png"));
 
@@ -246,9 +258,11 @@ namespace AutoCGAligner
 
         private void BaseFiles_DoubleClick(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Multiselect = true;
-            ofd.Filter = "图片文件|*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff";
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Multiselect = true,
+                Filter = "图片文件|*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff"
+            };
             if (ofd.ShowDialog() == DialogResult.OK)
                 LoadFiles(ofd.FileNames, true);
         }
@@ -257,9 +271,11 @@ namespace AutoCGAligner
         {
             if (!CheckBaseSelected())
                 return;
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Multiselect = true;
-            ofd.Filter = "图片文件|*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff";
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Multiselect = true,
+                Filter = "图片文件|*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff"
+            };
             if (ofd.ShowDialog() == DialogResult.OK)
                 LoadFiles(ofd.FileNames, false);
         }
@@ -358,7 +374,6 @@ namespace AutoCGAligner
         private void DiffFiles_KeyPress(object sender, KeyPressEventArgs e)
         {
             string diffName = diffFiles.Text;
-            Console.WriteLine(baseFiles.Text + diffName);
             if (!string.IsNullOrEmpty(diffName) && e.KeyChar == '\b')
             {
                 string baseName = baseFiles.Text;
@@ -385,7 +400,7 @@ namespace AutoCGAligner
         {
             e.Cancel = true;
             MessageBox.Show("添加图片：双击白框或直接拖动\n" +
-                "移除图片：选中后按backspace", "帮助",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                "移除图片：选中后按backspace", "帮助", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

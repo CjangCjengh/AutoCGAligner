@@ -5,35 +5,19 @@ namespace AutoCGAligner
 {
     public partial class AdvancedWin : Form
     {
-        public AdvancedWin()
+        public AdvancedWin(Action<int, int, int> callback)
         {
             InitializeComponent();
+            this.callback = callback;
         }
+
+        private readonly Action<int, int, int> callback;
 
         private void ConfirmButton_Click(object sender, EventArgs e)
         {
-            if (Owner.GetType() == typeof(MainWin))
-            {
-                MainWin owner = Owner as MainWin;
-                owner.initStep = (int)initStepValue.Value;
-                owner.stepDivisor = (int)stepDivisorValue.Value;
-                owner.extScale = (int)extScaleValue.Value;
-                if (owner.speedMode.Checked)
-                    owner.speedMode.Checked = false;
-                else if (owner.precisionMode.Checked)
-                    owner.precisionMode.Checked = false;
-            }
-            else if (Owner.GetType() == typeof(BatchWin))
-            {
-                BatchWin owner = Owner as BatchWin;
-                owner.initStep = (int)initStepValue.Value;
-                owner.stepDivisor = (int)stepDivisorValue.Value;
-                owner.extScale = (int)extScaleValue.Value;
-                if (owner.speedMode.Checked)
-                    owner.speedMode.Checked = false;
-                else if (owner.precisionMode.Checked)
-                    owner.precisionMode.Checked = false;
-            }
+            callback((int)initStepValue.Value,
+                (int)stepDivisorValue.Value,
+                (int)extScaleValue.Value);
             Close();
         }
 
@@ -42,6 +26,12 @@ namespace AutoCGAligner
             initStepValue.Value = Math.Min(initStep, initStepValue.Maximum);
             stepDivisorValue.Value = Math.Min(stepDivisor, stepDivisorValue.Maximum);
             extScaleValue.Value = Math.Min(extScale, extScaleValue.Maximum);
+        }
+
+        public void SetMaximum(int initStepMax, int stepDivisorMax)
+        {
+            initStepValue.Maximum = initStepMax;
+            stepDivisorValue.Maximum = stepDivisorMax;
         }
 
         private void InitStepValue_ValueChanged(object sender, EventArgs e)

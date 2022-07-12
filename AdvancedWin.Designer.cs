@@ -179,11 +179,11 @@
 
         private System.Windows.Forms.Panel settings;
         private System.Windows.Forms.Label extScaleLabel;
-        public System.Windows.Forms.NumericUpDown extScaleValue;
+        private System.Windows.Forms.NumericUpDown extScaleValue;
         private System.Windows.Forms.Label stepDivisorLabel;
-        public System.Windows.Forms.NumericUpDown stepDivisorValue;
+        private System.Windows.Forms.NumericUpDown stepDivisorValue;
         private System.Windows.Forms.Label initStepLabel;
-        public System.Windows.Forms.NumericUpDown initStepValue;
+        private System.Windows.Forms.NumericUpDown initStepValue;
         private System.Windows.Forms.Button confirmButton;
     }
 }

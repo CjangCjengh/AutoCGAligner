@@ -37,6 +37,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -46,6 +47,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -85,11 +87,11 @@
     <Compile Include="BatchWin.Designer.cs">
       <DependentUpon>BatchWin.cs</DependentUpon>
     </Compile>
-    <Compile Include="ClearBgWin.cs">
+    <Compile Include="ClearColorWin.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ClearBgWin.Designer.cs">
-      <DependentUpon>ClearBgWin.cs</DependentUpon>
+    <Compile Include="ClearColorWin.Designer.cs">
+      <DependentUpon>ClearColorWin.cs</DependentUpon>
     </Compile>
     <Compile Include="BatchAlignWin.cs">
       <SubType>Form</SubType>
@@ -141,8 +143,8 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="ClearBgWin.resx">
-      <DependentUpon>ClearBgWin.cs</DependentUpon>
+    <EmbeddedResource Include="ClearColorWin.resx">
+      <DependentUpon>ClearColorWin.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="BatchAlignWin.resx">
       <DependentUpon>BatchAlignWin.cs</DependentUpon>

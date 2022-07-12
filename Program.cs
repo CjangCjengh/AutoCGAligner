@@ -23,14 +23,14 @@ namespace AutoCGAligner
         /// <summary>
         /// 两个个像素点RGB向量的最大距离
         /// </summary>
-        static public double MaxPixelDis = Math.Sqrt(Math.Pow(255, 2) * 3);
+        public static int MaxPixelDis = 255 * 255 * 3;
 
         /// <summary>
         /// 将图片等比例拉伸后展示在框中
         /// </summary>
         /// <param name="img">要展示的图片</param>
         /// <param name="box">展示图片的框</param>
-        static public void ShowImage(Image img, PictureBox box)
+        public static void ShowImage(Image img, PictureBox box)
         {
             float widthRatio = (float)img.Width / box.Width;
             float heightRatio = (float)img.Height / box.Height;
@@ -53,13 +53,13 @@ namespace AutoCGAligner
         /// </summary>
         /// <param name="p1">像素1</param>
         /// <param name="p2">像素2</param>
-        /// <returns></returns>
-        static public double PixelDistance(Color p1, Color p2)
+        /// <returns>距离</returns>
+        public static int PixelDistance(Color p1, Color p2)
         {
             int R = p1.R - p2.R;
             int G = p1.G - p2.G;
             int B = p1.B - p2.B;
-            return Math.Sqrt(R * R + G * G + B * B);
+            return R * R + G * G + B * B;
         }
 
         /// <summary>
@@ -67,45 +67,57 @@ namespace AutoCGAligner
         /// </summary>
         /// <param name="img">图片</param>
         /// <param name="npixels">边缘像素点的数量</param>
-        /// <returns></returns>
-        static public Color[,] GetBorder(Bitmap img, out int npixels)
+        /// <returns>边缘像素点的数组</returns>
+        public static unsafe Color[,] GetBorder(Bitmap img, out int npixels)
         {
-            Color[,] border = new Color[img.Width, img.Height];
             npixels = 0;
-            for (int i = 0; i < img.Width; i++)
+            Color[,] borderColors = new Color[img.Width, img.Height];
+            BitmapData imgData = img.LockBits(new Rectangle(0, 0, img.Width, img.Height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            byte* imgRow = (byte*)imgData.Scan0.ToPointer();
+            int bpp = 4;
+            int stride = imgData.Stride;
+            for (int y = 0; y < img.Height; y++)
             {
-                for (int j = 0; j < img.Height; j++)
+                int bi = 0, gi = 1, ri = 2, ai = 3;
+                for (int x = 0; x < img.Width; x++)
                 {
-                    if (img.GetPixel(i, j).A == 0)
-                        border[i, j] = Color.FromArgb(0);
-                    else if ((i - 1 >= 0 && img.GetPixel(i - 1, j).A != 0) &&
-                        (i + 1 < img.Width && img.GetPixel(i + 1, j).A != 0) &&
-                        (j - 1 >= 0 && img.GetPixel(i, j - 1).A != 0) &&
-                        (j + 1 < img.Height && img.GetPixel(i, j + 1).A != 0))
-                        border[i, j] = Color.FromArgb(0);
+                    if (imgRow[ai] == 0)
+                        borderColors[x, y] = Color.FromArgb(0);
+                    else if ((x - 1 >= 0 && imgRow[ai - bpp] != 0) &&
+                        (x + 1 < img.Width && imgRow[ai + bpp] != 0) &&
+                        (y - 1 >= 0 && (imgRow - stride)[ai] != 0) &&
+                        (y + 1 < img.Height && (imgRow + stride)[ai] != 0))
+                        borderColors[x, y] = Color.FromArgb(0);
                     else
                     {
-                        border[i, j] = img.GetPixel(i, j);
+                        borderColors[x, y] = Color.FromArgb(imgRow[ai], imgRow[ri], imgRow[gi], imgRow[bi]);
                         npixels++;
                     }
+                    ai += bpp;
+                    bi += bpp;
+                    gi += bpp;
+                    ri += bpp;
                 }
+                imgRow += stride;
             }
-            return border;
+            img.UnlockBits(imgData);
+            return borderColors;
         }
 
-        static public bool AlignImage(Bitmap baseImg, Color[,] border,
-            out int xAxis, out int yAxis, out double minDis,
+        public static bool AlignImage(Color[,] baseColors, Color[,] borderColors,
+            out int xAxis, out int yAxis, out long minDis,
             in int initStep, in int stepDivisor, in int extScale,
             ProgressBar bar, CancellationTokenSource cts,
-            Form owner, Action<int, int, double> display)
+            Form owner, Action<int, int, long> display)
         {
-            int width = border.GetLength(0);
-            int height = border.GetLength(1);
-            minDis = MaxPixelDis * width * height;
+            int width = borderColors.GetLength(0);
+            int height = borderColors.GetLength(1);
+            minDis = (long)MaxPixelDis * width * height;
             xAxis = 0;
             yAxis = 0;
-            int xRange = baseImg.Width - width;
-            int yRange = baseImg.Height - height;
+            int xRange = baseColors.GetLength(0) - width;
+            int yRange = baseColors.GetLength(1) - height;
             int xStart = 0;
             int xEnd = xRange;
             int yStart = 0;
@@ -126,7 +138,7 @@ namespace AutoCGAligner
                     bar.Maximum = xEnd;
                 }));
 
-                if (!AlignImage(baseImg, border,
+                if (!AlignImage(baseColors, borderColors,
                     xStart, xEnd, xStep,
                     yStart, yEnd, yStep,
                     ref minDis, ref xAxis, ref yAxis,
@@ -160,30 +172,27 @@ namespace AutoCGAligner
             return true;
         }
 
-        static public bool AlignImage(in Bitmap baseImg, in Color[,] border,
+        public static bool AlignImage(in Color[,] baseColors, in Color[,] borderColors,
             in int xStart, in int xEnd, in int xStep,
             in int yStart, in int yEnd, in int yStep,
-            ref double minDis, ref int xAxis, ref int yAxis,
+            ref long minDis, ref int xAxis, ref int yAxis,
             ProgressBar bar, in CancellationTokenSource cts, Form owner)
         {
-            int width = border.GetLength(0);
-            int height = border.GetLength(1);
+            int width = borderColors.GetLength(0);
+            int height = borderColors.GetLength(1);
             for (int i = xStart; i <= xEnd; i += xStep)
             {
-                owner.Invoke(new Action(() =>
-                {
-                    bar.Value = i;
-                }));
+                owner.Invoke(new Action(() => bar.Value = i));
                 for (int j = yStart; j <= yEnd; j += yStep)
                 {
                     if (cts.IsCancellationRequested)
                         return false;
-                    double dis = 0;
+                    long dis = 0;
                     for (int x = 0; x < width; x++)
                     {
                         for (int y = 0; y < height; y++)
-                            if (border[x, y].A != 0)
-                                dis += PixelDistance(baseImg.GetPixel(i + x, j + y), border[x, y]);
+                            if (borderColors[x, y].A != 0)
+                                dis += PixelDistance(baseColors[i + x, j + y], borderColors[x, y]);
                         if (dis >= minDis)
                             break;
                     }
@@ -198,44 +207,169 @@ namespace AutoCGAligner
             return true;
         }
 
-        static public Dictionary<Color, int> CountColors(in Bitmap img)
+        public static unsafe bool IsTransparent(in Bitmap img,
+            out Dictionary<Color, int> numOfColor)
         {
-            Dictionary<Color, int> colorList = new Dictionary<Color, int>();
-            for (int i = 0; i < img.Width; i++)
-                for (int j = 0; j < img.Height; j++)
-                    if (!colorList.ContainsKey(img.GetPixel(i, j)))
-                        colorList.Add(img.GetPixel(i, j), 1);
+            numOfColor = new Dictionary<Color, int>();
+            BitmapData imgData = img.LockBits(new Rectangle(0, 0,
+                img.Width, img.Height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            byte* row = (byte*)imgData.Scan0.ToPointer();
+            int bpp = 4;
+            int stride = imgData.Stride;
+            for (int y = 0; y < img.Height; y++)
+            {
+                int bi = 0, gi = 1, ri = 2, ai = 3;
+                for (int x = 0; x < img.Width; x++)
+                {
+                    Color color = Color.FromArgb(row[ai], row[ri], row[gi], row[bi]);
+                    if (color.A == 0)
+                    {
+                        img.UnlockBits(imgData);
+                        return true;
+                    }
+                    if (!numOfColor.ContainsKey(color))
+                        numOfColor.Add(color, 1);
                     else
-                        colorList[img.GetPixel(i, j)]++;
-            return colorList;
+                        numOfColor[color]++;
+                    ai += bpp;
+                    bi += bpp;
+                    gi += bpp;
+                    ri += bpp;
+                }
+                row += stride;
+            }
+            img.UnlockBits(imgData);
+            return false;
         }
 
-        static public void ClearBackground(ref Bitmap img, in Color color, in int deg)
+        public static unsafe Dictionary<Color, int> CountColors(in Bitmap img)
+        {
+            Dictionary<Color, int> numOfColor = new Dictionary<Color, int>();
+            BitmapData imgData = img.LockBits(new Rectangle(0, 0,
+                img.Width, img.Height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            byte* row = (byte*)imgData.Scan0.ToPointer();
+            int bpp = 4;
+            int stride = imgData.Stride;
+            for (int y = 0; y < img.Height; y++)
+            {
+                int bi = 0, gi = 1, ri = 2, ai = 3;
+                for (int x = 0; x < img.Width; x++)
+                {
+                    Color color = Color.FromArgb(row[ai], row[ri], row[gi], row[bi]);
+                    if (!numOfColor.ContainsKey(color))
+                        numOfColor.Add(color, 1);
+                    else
+                        numOfColor[color]++;
+                    ai += bpp;
+                    bi += bpp;
+                    gi += bpp;
+                    ri += bpp;
+                }
+                row += stride;
+            }
+            img.UnlockBits(imgData);
+            return numOfColor;
+        }
+
+        public static unsafe void ClearColor(ref Bitmap img, Color color, int distance)
         {
             if (img.PixelFormat != PixelFormat.Format32bppArgb)
                 img = img.Clone(new Rectangle(0, 0, img.Width, img.Height),
                     PixelFormat.Format32bppArgb);
-            Color trn = Color.FromArgb(0);
-            for (int i = 0; i < img.Width; i++)
-                for (int j = 0; j < img.Height; j++)
-                    if (PixelDistance(img.GetPixel(i, j), color) < deg)
-                        img.SetPixel(i, j, trn);
+            BitmapData imgData = img.LockBits(new Rectangle(0, 0, img.Width, img.Height),
+                ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+            byte* row = (byte*)imgData.Scan0.ToPointer();
+            int bpp = 4;
+            int stride = imgData.Stride;
+            for (int y = 0; y < img.Height; y++)
+            {
+                int bi = 0, gi = 1, ri = 2, ai = 3;
+                for (int x = 0; x < img.Width; x++)
+                {
+                    int a = row[ai], r = row[ri], b = row[bi], g = row[gi];
+                    if (r * r + b * b + g * g < distance)
+                    {
+                        row[ri] = row[gi] = row[bi] = row[ai] = 0;
+                    }
+                    ai += bpp;
+                    bi += bpp;
+                    gi += bpp;
+                    ri += bpp;
+                }
+                row += stride;
+            }
+            img.UnlockBits(imgData);
         }
 
-        static public Bitmap LatticeBackground(in int width, in int height)
+        public static unsafe Bitmap LatticeImage(in int width, in int height)
         {
             Bitmap bg = new Bitmap(width, height);
+            BitmapData bgData = bg.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            byte* row = (byte*)bgData.Scan0.ToPointer();
+            int bpp = 3;
+            int stride = bgData.Stride;
+            for (int y = 0; y < height; y++)
+            {
+                int bi = 0, gi = 1, ri = 2;
+                for (int x = 0; x < width; x++)
+                {
+                    if ((x / 10 + y / 10) % 2 == 0)
+                        row[ri] = row[gi] = row[bi] = 255;
+                    else
+                        row[ri] = row[gi] = row[bi] = 211;
+                    bi += bpp;
+                    gi += bpp;
+                    ri += bpp;
+                }
+                row += stride;
+            }
+            bg.UnlockBits(bgData);
+            return bg;
+        }
+
+        public static unsafe Color[,] BitmapToColors(Bitmap img)
+        {
+            Color[,] imgColors = new Color[img.Width, img.Height];
+            BitmapData imgData = img.LockBits(new Rectangle(0, 0, img.Width, img.Height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            byte* imgRow = (byte*)imgData.Scan0.ToPointer();
+            int bpp = 4;
+            int stride = imgData.Stride;
+            for (int y = 0; y < img.Height; y++)
+            {
+                int bi = 0, gi = 1, ri = 2, ai = 3;
+                for (int x = 0; x < img.Width; x++)
+                {
+                    imgColors[x, y] = Color.FromArgb(imgRow[ai], imgRow[ri], imgRow[gi], imgRow[bi]);
+                    ai += bpp;
+                    bi += bpp;
+                    gi += bpp;
+                    ri += bpp;
+                }
+                imgRow += stride;
+            }
+            img.UnlockBits(imgData);
+            return imgColors;
+        }
+
+        public static long ImageDistance(Color[,] img1, Color[,] img2, int x, int y)
+        {
+            int width = img2.GetLength(0);
+            int height = img2.GetLength(1);
+            long dis = 0;
             for (int i = 0; i < width; i++)
                 for (int j = 0; j < height; j++)
-                {
-                    int x = i / 10;
-                    int y = j / 10;
-                    if ((x + y) % 2 == 0)
-                        bg.SetPixel(i, j, Color.White);
-                    else
-                        bg.SetPixel(i, j, Color.LightGray);
-                }
-            return bg;
+                    if (img2[i, j].A != 0)
+                        dis += PixelDistance(img1[x + i, y + j], img2[i, j]);
+            return dis;
+        }
+
+        public static double GetFit(long distance, int npixels)
+        {
+            return (1 - Math.Sqrt((double)distance / npixels / MaxPixelDis)) * 100;
         }
     }
 }

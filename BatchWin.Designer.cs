@@ -176,7 +176,7 @@
             this.degreeValue.Enabled = false;
             this.degreeValue.Location = new System.Drawing.Point(305, 29);
             this.degreeValue.Maximum = new decimal(new int[] {
-            442,
+            500,
             0,
             0,
             0});
@@ -293,8 +293,8 @@
         private System.Windows.Forms.GroupBox fileBox;
         private System.Windows.Forms.GroupBox alignBox;
         private System.Windows.Forms.Button alignAdvanced;
-        public System.Windows.Forms.RadioButton precisionMode;
-        public System.Windows.Forms.RadioButton speedMode;
+        private System.Windows.Forms.RadioButton precisionMode;
+        private System.Windows.Forms.RadioButton speedMode;
         private System.Windows.Forms.GroupBox diffProcess;
         private System.Windows.Forms.CheckBox clearLabel;
         private System.Windows.Forms.NumericUpDown degreeValue;

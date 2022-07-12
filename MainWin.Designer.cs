@@ -389,7 +389,7 @@
 
         #endregion
 
-        public System.Windows.Forms.PictureBox CGBox;
+        private System.Windows.Forms.PictureBox CGBox;
         private System.Windows.Forms.Button openDiff;
         private System.Windows.Forms.Button openBase;
         private System.Windows.Forms.Panel filePanel;
@@ -398,8 +398,8 @@
         private System.Windows.Forms.Button alignButton;
         private System.Windows.Forms.GroupBox alignBox;
         private System.Windows.Forms.GroupBox fileBox;
-        public System.Windows.Forms.RadioButton speedMode;
-        public System.Windows.Forms.RadioButton precisionMode;
+        private System.Windows.Forms.RadioButton speedMode;
+        private System.Windows.Forms.RadioButton precisionMode;
         private System.Windows.Forms.Button alignAdvanced;
         private System.Windows.Forms.GroupBox alignResult;
         private System.Windows.Forms.Label fitLabel;
@@ -415,7 +415,6 @@
         private System.Windows.Forms.Button saveButton;
         private System.Windows.Forms.Button batchProcess;
         private System.Windows.Forms.MenuStrip menuStrip1;
-        private PictureWin pictureWin;
     }
 }
 

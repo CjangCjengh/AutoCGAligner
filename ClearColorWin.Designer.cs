@@ -1,6 +1,6 @@
 ﻿namespace AutoCGAligner
 {
-    partial class ClearBackgroundWin
+    partial class ClearColorWin
     {
         /// <summary>
         /// Required designer variable.
@@ -28,13 +28,13 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ClearBackgroundWin));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ClearColorWin));
             this.CGBox = new System.Windows.Forms.PictureBox();
             this.degreeLabel = new System.Windows.Forms.Label();
-            this.clearDegree = new System.Windows.Forms.NumericUpDown();
+            this.degreeValue = new System.Windows.Forms.NumericUpDown();
             this.confirmButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.CGBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.clearDegree)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.degreeValue)).BeginInit();
             this.SuspendLayout();
             // 
             // CGBox
@@ -56,23 +56,23 @@
             this.degreeLabel.TabIndex = 17;
             this.degreeLabel.Text = "去除强度";
             // 
-            // clearDegree
+            // degreeValue
             // 
-            this.clearDegree.Location = new System.Drawing.Point(163, 24);
-            this.clearDegree.Maximum = new decimal(new int[] {
-            442,
+            this.degreeValue.Location = new System.Drawing.Point(163, 24);
+            this.degreeValue.Maximum = new decimal(new int[] {
+            500,
             0,
             0,
             0});
-            this.clearDegree.Name = "clearDegree";
-            this.clearDegree.Size = new System.Drawing.Size(99, 31);
-            this.clearDegree.TabIndex = 18;
-            this.clearDegree.Value = new decimal(new int[] {
+            this.degreeValue.Name = "degreeValue";
+            this.degreeValue.Size = new System.Drawing.Size(99, 31);
+            this.degreeValue.TabIndex = 18;
+            this.degreeValue.Value = new decimal(new int[] {
             50,
             0,
             0,
             0});
-            this.clearDegree.ValueChanged += new System.EventHandler(this.ClearDegree_ValueChanged);
+            this.degreeValue.ValueChanged += new System.EventHandler(this.ClearDegree_ValueChanged);
             // 
             // confirmButton
             // 
@@ -84,13 +84,13 @@
             this.confirmButton.UseVisualStyleBackColor = true;
             this.confirmButton.Click += new System.EventHandler(this.ConfirmButton_Click);
             // 
-            // ClearBgWin
+            // ClearColorWin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(664, 448);
             this.Controls.Add(this.confirmButton);
-            this.Controls.Add(this.clearDegree);
+            this.Controls.Add(this.degreeValue);
             this.Controls.Add(this.degreeLabel);
             this.Controls.Add(this.CGBox);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -99,13 +99,12 @@
             this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ClearBgWin";
+            this.Name = "ClearColorWin";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "去除背景";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ClearBgWin_FormClosing);
-            this.Load += new System.EventHandler(this.ClearBgWin_Load);
+            this.Load += new System.EventHandler(this.ClearColorWin_Load);
             ((System.ComponentModel.ISupportInitialize)(this.CGBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.clearDegree)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.degreeValue)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -113,9 +112,9 @@
 
         #endregion
 
-        public System.Windows.Forms.PictureBox CGBox;
+        private System.Windows.Forms.PictureBox CGBox;
         private System.Windows.Forms.Label degreeLabel;
-        private System.Windows.Forms.NumericUpDown clearDegree;
+        private System.Windows.Forms.NumericUpDown degreeValue;
         private System.Windows.Forms.Button confirmButton;
     }
 }

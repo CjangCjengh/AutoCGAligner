@@ -17,8 +17,10 @@ namespace AutoCGAligner
 
         private void OpenBase_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "图片文件|*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff";
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "图片文件|*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff"
+            };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 string path = ofd.FileName;
@@ -29,8 +31,10 @@ namespace AutoCGAligner
 
         private void OpenDiff_Click(object sender, EventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "图片文件|*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff";
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "图片文件|*.png;*.bmp;*.jpg;*.jpeg;*.tif;*.tiff"
+            };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 string path = ofd.FileName;
@@ -39,16 +43,16 @@ namespace AutoCGAligner
             }
         }
 
-        private Image baseImage;
-        private Image diffImage;
-        public Image resultImage;
-        private Bitmap baseImg;
-        public Bitmap diffImg;
-        private Color[,] border;
+        private Bitmap baseImage;
+        private Bitmap diffImage;
+        private Bitmap resultImage;
+        private Color[,] baseColors;
+        private Color[,] borderColors;
+        private PictureWin pictureWin;
         private int npixels;
-        public int initStep = 20;
-        public int stepDivisor = 10;
-        public int extScale = 2;
+        private int initStep = 20;
+        private int stepDivisor = 10;
+        private int extScale = 2;
 
         private void CheckImageSize()
         {
@@ -57,33 +61,46 @@ namespace AutoCGAligner
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
             else
             {
-                baseImg = new Bitmap(baseImage);
-                diffImg = new Bitmap(diffImage);
-                border = Program.GetBorder(diffImg, out npixels);
+                baseColors = Program.BitmapToColors(baseImage);
+                borderColors = Program.GetBorder(diffImage, out npixels);
                 alignBox.Enabled = true;
                 alignResult.Enabled = true;
                 alignTest.Enabled = true;
                 XValue.Maximum = baseImage.Width - diffImage.Width;
                 YValue.Maximum = baseImage.Height - diffImage.Height;
+                long dis = Program.ImageDistance(baseColors, borderColors, 0, 0);
+                fitValue.Text = Program.GetFit(dis, npixels).ToString("f2") + "%";
+                ResetRange(0, 0);
             }
         }
 
         private void AlignAdvanced_Click(object sender, EventArgs e)
         {
-            AdvancedWin aw = new AdvancedWin();
             int widthDiff = baseImage.Width - diffImage.Width + 1;
             int heightDiff = baseImage.Height - diffImage.Height + 1;
-            aw.initStepValue.Maximum = widthDiff < heightDiff ? widthDiff : heightDiff;
-            aw.stepDivisorValue.Maximum = widthDiff > heightDiff ? widthDiff : heightDiff;
+            AdvancedWin aw = new AdvancedWin((initStep, stepDivisor, extScale) =>
+            {
+                this.initStep = initStep;
+                this.stepDivisor = stepDivisor;
+                this.extScale = extScale;
+                if (speedMode.Checked)
+                    speedMode.Checked = false;
+                else if (precisionMode.Checked)
+                    precisionMode.Checked = false;
+            });
+            aw.SetMaximum(widthDiff < heightDiff ? widthDiff : heightDiff,
+                widthDiff > heightDiff ? widthDiff : heightDiff);
             aw.SetValue(initStep, stepDivisor, extScale);
             aw.ShowDialog(this);
         }
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            SaveFileDialog sfd = new SaveFileDialog();
-            sfd.Filter = "图片文件|*.png";
-            sfd.FileName = "Untitled.png";
+            SaveFileDialog sfd = new SaveFileDialog
+            {
+                Filter = "图片文件|*.png",
+                FileName = "Untitled.png"
+            };
             if (sfd.ShowDialog() == DialogResult.OK)
             {
                 resultImage.Save(sfd.FileName);
@@ -97,9 +114,7 @@ namespace AutoCGAligner
             {
                 if (pictureWin != null)
                     pictureWin.Close();
-                pictureWin = new PictureWin();
-                pictureWin.Size = resultImage.Size;
-                pictureWin.BackgroundImage = resultImage;
+                pictureWin = new PictureWin(resultImage);
                 pictureWin.Show();
             }
         }
@@ -127,32 +142,34 @@ namespace AutoCGAligner
 
             Task task = Task.Run(() =>
             {
-                if (Program.AlignImage(baseImg, border,
-                    out int x, out int y, out double dis,
+                if (Program.AlignImage(baseColors, borderColors,
+                    out int x, out int y, out long dis,
                     initStep, stepDivisor, extScale,
                     aw.progressBar, aw.cts, this,
-                    (int tx, int ty, double tdis) =>
+                    (int tx, int ty, long tdis) =>
                     {
                         aw.XValue.Text = tx.ToString();
                         aw.YValue.Text = ty.ToString();
-                        aw.fitValue.Text = ((1 - tdis / npixels /
-                            Program.MaxPixelDis) * 100).ToString("f2") + "%";
+                        aw.fitValue.Text = Program.GetFit(tdis, npixels).ToString("f2") + "%";
                         ProduceResultImage(tx, ty);
                         Program.ShowImage(resultImage, aw.CGBox);
                     }))
                 {
-                    XValue.Value = x;
-                    YValue.Value = y;
-                    ResetRange(x, y);
-                    fitValue.Text = aw.fitValue.Text;
-                    ProduceResultImage(x, y);
-                    Program.ShowImage(resultImage, CGBox);
-                    alignResult.Enabled = true;
-                    alignTest.Enabled = true;
-                    rangeValue.Value = 0;
-                    saveButton.Enabled = true;
-                    aw.Close();
-                    double fit = (1 - dis / npixels / Program.MaxPixelDis) * 100;
+                    Invoke(new Action(() =>
+                    {
+                        XValue.Value = x;
+                        YValue.Value = y;
+                        ResetRange(x, y);
+                        fitValue.Text = aw.fitValue.Text;
+                        ProduceResultImage(x, y);
+                        Program.ShowImage(resultImage, CGBox);
+                        alignResult.Enabled = true;
+                        alignTest.Enabled = true;
+                        rangeValue.Value = 0;
+                        saveButton.Enabled = true;
+                        aw.Close();
+                    }));
+                    double fit = Program.GetFit(dis, npixels);
                     if (fit > 90)
                         MessageBox.Show($"对齐成功！(吻合度：{fitValue.Text})", "",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -164,7 +181,7 @@ namespace AutoCGAligner
                             MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
-                    alignResult.Enabled = true;
+                    Invoke(new Action(() => alignResult.Enabled = true));
             });
 
             aw.ShowDialog(this);
@@ -177,7 +194,7 @@ namespace AutoCGAligner
 
         public void ProduceResultImage(int x = 0, int y = 0)
         {
-            resultImage = (Image)baseImage.Clone();
+            resultImage = new Bitmap(baseImage);
             Graphics g = Graphics.FromImage(resultImage);
             g.DrawImage(diffImage, x, y);
             g.Dispose();
@@ -189,12 +206,8 @@ namespace AutoCGAligner
                 return;
             int x = (int)XValue.Value;
             int y = (int)YValue.Value;
-            double dis = 0;
-            for (int i = 0; i < diffImg.Width; i++)
-                for (int j = 0; j < diffImg.Height; j++)
-                    if (border[i, j].A != 0)
-                        dis += Program.PixelDistance(baseImg.GetPixel(x + i, y + j), border[i, j]);
-            fitValue.Text = ((1 - dis / npixels / Program.MaxPixelDis) * 100).ToString("f2") + "%";
+            long dis = Program.ImageDistance(baseColors, borderColors, x, y);
+            fitValue.Text = Program.GetFit(dis, npixels).ToString("f2") + "%";
             ResetRange(x, y);
             ProduceResultImage(x, y);
             Program.ShowImage(resultImage, CGBox);
@@ -202,8 +215,8 @@ namespace AutoCGAligner
 
         private void ResetRange(int x, int y)
         {
-            rangeValue.Maximum = Math.Max(Math.Max(x, baseImg.Width - diffImg.Width - x),
-                Math.Max(y, baseImg.Height - diffImg.Height - y));
+            rangeValue.Maximum = Math.Max(Math.Max(x, baseImage.Width - diffImage.Width - x),
+                Math.Max(y, baseImage.Height - diffImage.Height - y));
             rangeValue.Value = 0;
         }
 
@@ -221,11 +234,11 @@ namespace AutoCGAligner
                 int x = (int)XValue.Value;
                 int y = (int)YValue.Value;
                 int rangeW = Math.Min(range, x);
-                int rangeE = Math.Min(range, baseImg.Width - diffImg.Width - x);
+                int rangeE = Math.Min(range, baseImage.Width - diffImage.Width - x);
                 int rangeN = Math.Min(range, y);
-                int rangeS = Math.Min(range, baseImg.Height - diffImg.Height - y);
-                Bitmap rangeImg = new Bitmap(diffImg.Width + rangeE + rangeW, diffImg.Height + rangeN + rangeS);
-                Image tempImage = (Image)baseImage.Clone();
+                int rangeS = Math.Min(range, baseImage.Height - diffImage.Height - y);
+                Bitmap rangeImg = new Bitmap(diffImage.Width + rangeE + rangeW, diffImage.Height + rangeN + rangeS);
+                Bitmap tempImage = new Bitmap(baseImage);
                 Graphics g = Graphics.FromImage(rangeImg);
                 g.Clear(Color.FromArgb(50, 0, 255, 0));
                 g.DrawImage(diffImage, rangeW, rangeN);
@@ -242,37 +255,39 @@ namespace AutoCGAligner
             int xValue = (int)XValue.Value;
             int yValue = (int)YValue.Value;
             int xStart = Math.Max(xValue - range, 0);
-            int xEnd = Math.Min(xValue + range, baseImg.Width - diffImg.Width);
+            int xEnd = Math.Min(xValue + range, baseImage.Width - diffImage.Width);
             int yStart = Math.Max(yValue - range, 0);
-            int yEnd = Math.Min(yValue + range, baseImg.Height - diffImg.Height);
+            int yEnd = Math.Min(yValue + range, baseImage.Height - diffImage.Height);
             TestWin tw = new TestWin();
             tw.progressBar.Minimum = xStart;
             tw.progressBar.Maximum = xEnd;
 
             Task task = Task.Run(() =>
             {
-                double minDis = Program.MaxPixelDis * diffImg.Width * diffImg.Height;
+                long minDis = (long)Program.MaxPixelDis * diffImage.Width * diffImage.Height;
                 int xAxis = 0, yAxis = 0;
-                if (Program.AlignImage(baseImg, border,
+                if (Program.AlignImage(baseColors, borderColors,
                     xStart, xEnd, 1,
                     yStart, yEnd, 1,
                     ref minDis, ref xAxis, ref yAxis,
                     tw.progressBar, tw.cts, this))
                 {
-                    XValue.Value = xAxis;
-                    YValue.Value = yAxis;
-                    ResetRange(xAxis, yAxis);
-                    fitValue.Text = ((1 - minDis / npixels
-                        / Program.MaxPixelDis) * 100).ToString("f2") + "%";
-                    ProduceResultImage(xAxis, yAxis);
-                    Program.ShowImage(resultImage, CGBox);
-                    alignResult.Enabled = true;
-                    tw.Close();
+                    Invoke(new Action(() =>
+                    {
+                        XValue.Value = xAxis;
+                        YValue.Value = yAxis;
+                        ResetRange(xAxis, yAxis);
+                        fitValue.Text = Program.GetFit(minDis, npixels).ToString("f2") + "%";
+                        ProduceResultImage(xAxis, yAxis);
+                        Program.ShowImage(resultImage, CGBox);
+                        alignResult.Enabled = true;
+                        tw.Close();
+                    }));
                     MessageBox.Show($"检测结束！(吻合度：{fitValue.Text})", "",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
-                    alignResult.Enabled = true;
+                    Invoke(new Action(() => alignResult.Enabled = true));
             });
 
             tw.ShowDialog(this);
@@ -320,10 +335,10 @@ namespace AutoCGAligner
 
         private void LoadBaseFile(string path)
         {
-            baseImage = Image.FromFile(path);
+            baseImage = new Bitmap(path);
             ClearAll();
             if (diffImage == null)
-                resultImage = (Image)baseImage.Clone();
+                resultImage = new Bitmap(baseImage);
             else
             {
                 CheckImageSize();
@@ -333,11 +348,11 @@ namespace AutoCGAligner
 
         private void LoadDiffFile(string path)
         {
-            diffImage = Image.FromFile(path);
+            diffImage = new Bitmap(path);
             CheckDiffImage();
             ClearAll();
             if (baseImage == null)
-                resultImage = (Image)diffImage.Clone();
+                resultImage = new Bitmap(diffImage);
             else
             {
                 CheckImageSize();
@@ -345,27 +360,17 @@ namespace AutoCGAligner
             }
         }
 
-        private void CheckDiffImage()
+        private unsafe void CheckDiffImage()
         {
-            diffImg = new Bitmap(diffImage);
-            Dictionary<Color, int> colorList = new Dictionary<Color, int>();
-            for (int i = 0; i < diffImg.Width; i++)
-                for (int j = 0; j < diffImg.Height; j++)
-                {
-                    if (diffImg.GetPixel(i, j).A == 0)
-                        return;
-                    if (!colorList.ContainsKey(diffImg.GetPixel(i, j)))
-                        colorList.Add(diffImg.GetPixel(i, j), 1);
-                    else
-                        colorList[diffImg.GetPixel(i, j)]++;
-                }
+            if (Program.IsTransparent(diffImage, out Dictionary<Color, int> numOfColor))
+                return;
             if (MessageBox.Show("当前差分图片拥有不透明背景，是否去除背景？", "",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
             {
-                Color bgColor = colorList.Aggregate((a, b) => a.Value > b.Value ? a : b).Key;
-                ClearBackgroundWin clr = new ClearBackgroundWin(bgColor);
-                clr.ShowDialog(this);
-                diffImage = diffImg;
+                Color bgColor = numOfColor.Aggregate((a, b) => a.Value > b.Value ? a : b).Key;
+                ClearColorWin cbw = new ClearColorWin(diffImage, bgColor,
+                    img => diffImage = new Bitmap(img));
+                cbw.ShowDialog(this);
             }
         }
 

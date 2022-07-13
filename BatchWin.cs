@@ -53,6 +53,7 @@ namespace AutoCGAligner
             aw.SetMaximum(50, 30);
             aw.SetValue(initStep, stepDivisor, extScale);
             aw.ShowDialog(this);
+            aw.Dispose();
         }
 
         private void OpenFolder_Click(object sender, EventArgs e)
@@ -60,6 +61,7 @@ namespace AutoCGAligner
             FolderBrowserDialog fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog(this) == DialogResult.OK)
                 savePath.Text = fbd.SelectedPath;
+            fbd.Dispose();
         }
         private bool CreateFolder(string path)
         {
@@ -226,6 +228,7 @@ namespace AutoCGAligner
             });
 
             baw.ShowDialog(this);
+            baw.Dispose();
         }
 
         private void SpeedMode_CheckedChanged(object sender, EventArgs e)
@@ -265,6 +268,7 @@ namespace AutoCGAligner
             };
             if (ofd.ShowDialog() == DialogResult.OK)
                 LoadFiles(ofd.FileNames, true);
+            ofd.Dispose();
         }
 
         private void DiffFiles_DoubleClick(object sender, EventArgs e)
@@ -278,6 +282,7 @@ namespace AutoCGAligner
             };
             if (ofd.ShowDialog() == DialogResult.OK)
                 LoadFiles(ofd.FileNames, false);
+            ofd.Dispose();
         }
 
         private void FilesDragEnter(object sender, DragEventArgs e)

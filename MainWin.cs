@@ -27,6 +27,7 @@ namespace AutoCGAligner
                 basePath.Text = path;
                 LoadFile(basePath.Text, true);
             }
+            ofd.Dispose();
         }
 
         private void OpenDiff_Click(object sender, EventArgs e)
@@ -41,6 +42,7 @@ namespace AutoCGAligner
                 diffPath.Text = path;
                 LoadFile(diffPath.Text, false);
             }
+            ofd.Dispose();
         }
 
         private Bitmap baseImage;
@@ -92,6 +94,7 @@ namespace AutoCGAligner
                 widthDiff > heightDiff ? widthDiff : heightDiff);
             aw.SetValue(initStep, stepDivisor, extScale);
             aw.ShowDialog(this);
+            aw.Dispose();
         }
 
         private void SaveButton_Click(object sender, EventArgs e)
@@ -106,6 +109,7 @@ namespace AutoCGAligner
                 resultImage.Save(sfd.FileName);
                 MessageBox.Show("保存成功！", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+            sfd.Dispose();
         }
 
         private void CGBox_Click(object sender, EventArgs e)
@@ -185,6 +189,7 @@ namespace AutoCGAligner
             });
 
             aw.ShowDialog(this);
+            aw.Dispose();
         }
 
         private void AlignButton_Click(object sender, EventArgs e)
@@ -291,6 +296,7 @@ namespace AutoCGAligner
             });
 
             tw.ShowDialog(this);
+            tw.Dispose();
             rangeValue.Value = 0;
         }
 
@@ -298,6 +304,7 @@ namespace AutoCGAligner
         {
             BatchWin bw = new BatchWin();
             bw.ShowDialog(this);
+            bw.Dispose();
         }
 
         private void BasePath_KeyPress(object sender, KeyPressEventArgs e)
@@ -371,6 +378,7 @@ namespace AutoCGAligner
                 ClearColorWin cbw = new ClearColorWin(diffImage, bgColor,
                     img => diffImage = new Bitmap(img));
                 cbw.ShowDialog(this);
+                cbw.Dispose();
             }
         }
 

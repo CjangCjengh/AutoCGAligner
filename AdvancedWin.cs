@@ -36,7 +36,7 @@ namespace AutoCGAligner
 
         private void StepDivisorValue_ValueChanged(object sender, EventArgs e)
         {
-            extScaleValue.Maximum = ((int)stepDivisorValue.Value-1) / 2;
+            extScaleValue.Maximum = ((int)stepDivisorValue.Value - 1) / 2;
         }
     }
 }

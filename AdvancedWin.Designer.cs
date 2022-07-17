@@ -62,20 +62,30 @@
             this.extScaleLabel.Location = new System.Drawing.Point(23, 80);
             this.extScaleLabel.Name = "extScaleLabel";
             this.extScaleLabel.Size = new System.Drawing.Size(82, 24);
-            this.extScaleLabel.TabIndex = 6;
+            this.extScaleLabel.TabIndex = 4;
             this.extScaleLabel.Text = "检测尺度";
             // 
             // extScaleValue
             // 
             this.extScaleValue.Location = new System.Drawing.Point(131, 77);
             this.extScaleValue.Maximum = new decimal(new int[] {
+            1,
             0,
+            0,
+            0});
+            this.extScaleValue.Minimum = new decimal(new int[] {
+            1,
             0,
             0,
             0});
             this.extScaleValue.Name = "extScaleValue";
             this.extScaleValue.Size = new System.Drawing.Size(95, 31);
             this.extScaleValue.TabIndex = 5;
+            this.extScaleValue.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // stepDivisorLabel
             // 
@@ -83,19 +93,19 @@
             this.stepDivisorLabel.Location = new System.Drawing.Point(23, 43);
             this.stepDivisorLabel.Name = "stepDivisorLabel";
             this.stepDivisorLabel.Size = new System.Drawing.Size(82, 24);
-            this.stepDivisorLabel.TabIndex = 4;
+            this.stepDivisorLabel.TabIndex = 2;
             this.stepDivisorLabel.Text = "缩减幅度";
             // 
             // stepDivisorValue
             // 
             this.stepDivisorValue.Location = new System.Drawing.Point(131, 40);
             this.stepDivisorValue.Maximum = new decimal(new int[] {
-            1,
+            3,
             0,
             0,
             0});
             this.stepDivisorValue.Minimum = new decimal(new int[] {
-            1,
+            3,
             0,
             0,
             0});
@@ -103,10 +113,11 @@
             this.stepDivisorValue.Size = new System.Drawing.Size(95, 31);
             this.stepDivisorValue.TabIndex = 3;
             this.stepDivisorValue.Value = new decimal(new int[] {
-            1,
+            3,
             0,
             0,
             0});
+            this.stepDivisorValue.ValueChanged += new System.EventHandler(this.StepDivisorValue_ValueChanged);
             // 
             // initStepLabel
             // 
@@ -114,7 +125,7 @@
             this.initStepLabel.Location = new System.Drawing.Point(23, 6);
             this.initStepLabel.Name = "initStepLabel";
             this.initStepLabel.Size = new System.Drawing.Size(82, 24);
-            this.initStepLabel.TabIndex = 2;
+            this.initStepLabel.TabIndex = 0;
             this.initStepLabel.Text = "初始步长";
             // 
             // initStepValue
@@ -138,7 +149,6 @@
             0,
             0,
             0});
-            this.initStepValue.ValueChanged += new System.EventHandler(this.InitStepValue_ValueChanged);
             // 
             // confirmButton
             // 

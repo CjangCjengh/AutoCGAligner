@@ -61,7 +61,7 @@
             this.baseFiles.Location = new System.Drawing.Point(20, 54);
             this.baseFiles.Name = "baseFiles";
             this.baseFiles.Size = new System.Drawing.Size(200, 196);
-            this.baseFiles.TabIndex = 0;
+            this.baseFiles.TabIndex = 1;
             this.baseFiles.SelectedIndexChanged += new System.EventHandler(this.BaseFiles_SelectedIndexChanged);
             this.baseFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.BaseFiles_DragDrop);
             this.baseFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.FilesDragEnter);
@@ -76,7 +76,7 @@
             this.diffFiles.Location = new System.Drawing.Point(242, 54);
             this.diffFiles.Name = "diffFiles";
             this.diffFiles.Size = new System.Drawing.Size(200, 196);
-            this.diffFiles.TabIndex = 1;
+            this.diffFiles.TabIndex = 3;
             this.diffFiles.DragDrop += new System.Windows.Forms.DragEventHandler(this.DiffFiles_DragDrop);
             this.diffFiles.DragEnter += new System.Windows.Forms.DragEventHandler(this.FilesDragEnter);
             this.diffFiles.DoubleClick += new System.EventHandler(this.DiffFiles_DoubleClick);
@@ -88,7 +88,7 @@
             this.baseFilesLabel.Location = new System.Drawing.Point(16, 27);
             this.baseFilesLabel.Name = "baseFilesLabel";
             this.baseFilesLabel.Size = new System.Drawing.Size(107, 24);
-            this.baseFilesLabel.TabIndex = 2;
+            this.baseFilesLabel.TabIndex = 0;
             this.baseFilesLabel.Text = "CG（背景）";
             // 
             // diffFilesLabel
@@ -97,7 +97,7 @@
             this.diffFilesLabel.Location = new System.Drawing.Point(238, 27);
             this.diffFilesLabel.Name = "diffFilesLabel";
             this.diffFilesLabel.Size = new System.Drawing.Size(107, 24);
-            this.diffFilesLabel.TabIndex = 3;
+            this.diffFilesLabel.TabIndex = 2;
             this.diffFilesLabel.Text = "CG（差分）";
             // 
             // fileBox
@@ -109,7 +109,7 @@
             this.fileBox.Location = new System.Drawing.Point(12, 17);
             this.fileBox.Name = "fileBox";
             this.fileBox.Size = new System.Drawing.Size(462, 271);
-            this.fileBox.TabIndex = 8;
+            this.fileBox.TabIndex = 0;
             this.fileBox.TabStop = false;
             this.fileBox.Text = "图片文件";
             // 
@@ -121,7 +121,7 @@
             this.alignBox.Location = new System.Drawing.Point(12, 294);
             this.alignBox.Name = "alignBox";
             this.alignBox.Size = new System.Drawing.Size(462, 77);
-            this.alignBox.TabIndex = 9;
+            this.alignBox.TabIndex = 1;
             this.alignBox.TabStop = false;
             this.alignBox.Text = "对齐";
             // 
@@ -130,7 +130,7 @@
             this.alignAdvanced.Location = new System.Drawing.Point(305, 27);
             this.alignAdvanced.Name = "alignAdvanced";
             this.alignAdvanced.Size = new System.Drawing.Size(123, 34);
-            this.alignAdvanced.TabIndex = 8;
+            this.alignAdvanced.TabIndex = 2;
             this.alignAdvanced.Text = "高级设置";
             this.alignAdvanced.UseVisualStyleBackColor = true;
             this.alignAdvanced.Click += new System.EventHandler(this.AlignAdvanced_Click);
@@ -141,7 +141,7 @@
             this.precisionMode.Location = new System.Drawing.Point(167, 30);
             this.precisionMode.Name = "precisionMode";
             this.precisionMode.Size = new System.Drawing.Size(107, 28);
-            this.precisionMode.TabIndex = 8;
+            this.precisionMode.TabIndex = 1;
             this.precisionMode.Text = "精确模式";
             this.precisionMode.UseVisualStyleBackColor = true;
             this.precisionMode.CheckedChanged += new System.EventHandler(this.PrecisionMode_CheckedChanged);
@@ -153,7 +153,7 @@
             this.speedMode.Location = new System.Drawing.Point(38, 30);
             this.speedMode.Name = "speedMode";
             this.speedMode.Size = new System.Drawing.Size(107, 28);
-            this.speedMode.TabIndex = 8;
+            this.speedMode.TabIndex = 0;
             this.speedMode.TabStop = true;
             this.speedMode.Text = "快速模式";
             this.speedMode.UseVisualStyleBackColor = true;
@@ -167,7 +167,7 @@
             this.diffProcess.Location = new System.Drawing.Point(12, 377);
             this.diffProcess.Name = "diffProcess";
             this.diffProcess.Size = new System.Drawing.Size(462, 77);
-            this.diffProcess.TabIndex = 10;
+            this.diffProcess.TabIndex = 2;
             this.diffProcess.TabStop = false;
             this.diffProcess.Text = "差分处理";
             // 
@@ -182,7 +182,7 @@
             0});
             this.degreeValue.Name = "degreeValue";
             this.degreeValue.Size = new System.Drawing.Size(123, 31);
-            this.degreeValue.TabIndex = 20;
+            this.degreeValue.TabIndex = 2;
             this.degreeValue.Value = new decimal(new int[] {
             50,
             0,
@@ -196,7 +196,7 @@
             this.degreeLabel.Location = new System.Drawing.Point(217, 32);
             this.degreeLabel.Name = "degreeLabel";
             this.degreeLabel.Size = new System.Drawing.Size(82, 24);
-            this.degreeLabel.TabIndex = 19;
+            this.degreeLabel.TabIndex = 1;
             this.degreeLabel.Text = "去除强度";
             // 
             // clearLabel
@@ -205,7 +205,7 @@
             this.clearLabel.Location = new System.Drawing.Point(38, 30);
             this.clearLabel.Name = "clearLabel";
             this.clearLabel.Size = new System.Drawing.Size(108, 28);
-            this.clearLabel.TabIndex = 11;
+            this.clearLabel.TabIndex = 0;
             this.clearLabel.Text = "去除背景";
             this.clearLabel.UseVisualStyleBackColor = true;
             this.clearLabel.CheckedChanged += new System.EventHandler(this.ClearLabel_CheckedChanged);
@@ -217,7 +217,7 @@
             this.pathPanel.Location = new System.Drawing.Point(12, 460);
             this.pathPanel.Name = "pathPanel";
             this.pathPanel.Size = new System.Drawing.Size(462, 77);
-            this.pathPanel.TabIndex = 11;
+            this.pathPanel.TabIndex = 3;
             this.pathPanel.TabStop = false;
             this.pathPanel.Text = "保存路径";
             // 
@@ -226,7 +226,7 @@
             this.savePath.Location = new System.Drawing.Point(32, 29);
             this.savePath.Name = "savePath";
             this.savePath.Size = new System.Drawing.Size(258, 31);
-            this.savePath.TabIndex = 9;
+            this.savePath.TabIndex = 0;
             this.savePath.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.SavePath_KeyPress);
             // 
             // openFolder
@@ -234,7 +234,7 @@
             this.openFolder.Location = new System.Drawing.Point(305, 27);
             this.openFolder.Name = "openFolder";
             this.openFolder.Size = new System.Drawing.Size(123, 34);
-            this.openFolder.TabIndex = 8;
+            this.openFolder.TabIndex = 1;
             this.openFolder.Text = "打开文件夹";
             this.openFolder.UseVisualStyleBackColor = true;
             this.openFolder.Click += new System.EventHandler(this.OpenFolder_Click);
@@ -245,7 +245,7 @@
             this.confirmButton.Location = new System.Drawing.Point(187, 554);
             this.confirmButton.Name = "confirmButton";
             this.confirmButton.Size = new System.Drawing.Size(113, 34);
-            this.confirmButton.TabIndex = 10;
+            this.confirmButton.TabIndex = 4;
             this.confirmButton.Text = "开始合成";
             this.confirmButton.UseVisualStyleBackColor = true;
             this.confirmButton.Click += new System.EventHandler(this.ConfirmButton_Click);

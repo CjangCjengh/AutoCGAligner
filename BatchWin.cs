@@ -245,8 +245,8 @@ namespace AutoCGAligner
         {
             if (precisionMode.Checked)
             {
-                initStep = 10;
-                stepDivisor = 5;
+                initStep = 1;
+                stepDivisor = 3;
                 extScale = 1;
             }
         }

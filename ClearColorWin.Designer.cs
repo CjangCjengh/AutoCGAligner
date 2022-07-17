@@ -53,7 +53,7 @@
             this.degreeLabel.Location = new System.Drawing.Point(75, 27);
             this.degreeLabel.Name = "degreeLabel";
             this.degreeLabel.Size = new System.Drawing.Size(82, 24);
-            this.degreeLabel.TabIndex = 17;
+            this.degreeLabel.TabIndex = 0;
             this.degreeLabel.Text = "去除强度";
             // 
             // degreeValue
@@ -66,7 +66,7 @@
             0});
             this.degreeValue.Name = "degreeValue";
             this.degreeValue.Size = new System.Drawing.Size(99, 31);
-            this.degreeValue.TabIndex = 18;
+            this.degreeValue.TabIndex = 1;
             this.degreeValue.Value = new decimal(new int[] {
             50,
             0,
@@ -79,7 +79,7 @@
             this.confirmButton.Location = new System.Drawing.Point(456, 21);
             this.confirmButton.Name = "confirmButton";
             this.confirmButton.Size = new System.Drawing.Size(126, 36);
-            this.confirmButton.TabIndex = 19;
+            this.confirmButton.TabIndex = 2;
             this.confirmButton.Text = "确定";
             this.confirmButton.UseVisualStyleBackColor = true;
             this.confirmButton.Click += new System.EventHandler(this.ConfirmButton_Click);

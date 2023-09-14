@@ -342,7 +342,7 @@ namespace AutoCGAligner
 
         private void LoadBaseFile(string path)
         {
-            baseImage = new Bitmap(path);
+            baseImage = new Bitmap(Image.FromFile(path));
             ClearAll();
             if (diffImage == null)
                 resultImage = new Bitmap(baseImage);
@@ -355,7 +355,7 @@ namespace AutoCGAligner
 
         private void LoadDiffFile(string path)
         {
-            diffImage = new Bitmap(path);
+            diffImage = new Bitmap(Image.FromFile(path));
             CheckDiffImage();
             ClearAll();
             if (baseImage == null)

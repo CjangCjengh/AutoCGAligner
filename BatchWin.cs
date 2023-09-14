@@ -128,7 +128,7 @@ namespace AutoCGAligner
                     string baseName = Path.GetFileName(bpath);
                     try
                     {
-                        baseImage = new Bitmap(bpath);
+                        baseImage = new Bitmap(Image.FromFile(bpath));
                         baseColors = Program.BitmapToColors(baseImage);
                     }
                     catch
@@ -156,7 +156,7 @@ namespace AutoCGAligner
                         string diffName = Path.GetFileName(dpath);
                         try
                         {
-                            diffImage = new Bitmap(dpath);
+                            diffImage = new Bitmap(Image.FromFile(dpath));
                         }
                         catch
                         {
